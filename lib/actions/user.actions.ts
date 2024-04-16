@@ -4,10 +4,10 @@ import { FilterQuery, SortOrder } from "mongoose";
 import { revalidatePath } from "next/cache";
 
 import Community from "@/lib/models/community.model";
-import Univplat from "@/lib/models/thread.model";
 import User from "@/lib/models/user.model";
 
 import { connectToDB } from "@/lib/mongoose";
+import Thread from "@/lib/models/thread.model";
 
 export async function fetchUser(userId: string) {
   try {
@@ -66,10 +66,10 @@ export async function fetchUserPosts(userId: string) {
   try {
     connectToDB();
 
-    // Find all Univplats authored by the user with the given userId
-    const Univplats = await User.findOne({ id: userId }).populate({
-      path: "Univplats",
-      model: Univplat,
+    // Find all threads authored by the user with the given userId
+    const threads = await User.findOne({ id: userId }).populate({
+      path: "threads",
+      model: Thread,
       populate: [
         {
           path: "community",
@@ -78,7 +78,7 @@ export async function fetchUserPosts(userId: string) {
         },
         {
           path: "children",
-          model: Univplat,
+          model: Thread,
           populate: {
             path: "author",
             model: User,
@@ -87,9 +87,9 @@ export async function fetchUserPosts(userId: string) {
         },
       ],
     });
-    return Univplats;
+    return threads;
   } catch (error) {
-    console.error("Error fetching user Univplats:", error);
+    console.error("Error fetching user threads:", error);
     throw error;
   }
 }
@@ -157,18 +157,18 @@ export async function getActivity(userId: string) {
   try {
     connectToDB();
 
-    // Find all Univplats created by the user
-    const userUnivplats = await Univplat.find({ author: userId });
+    // Find all threads created by the user
+    const userThreads = await Thread.find({ author: userId });
 
-    // Collect all the child Univplat ids (replies) from the 'children' field of each user Univplat
-    const childUnivplatIds = userUnivplats.reduce((acc, userUnivplat) => {
-      return acc.concat(userUnivplat.children);
+    // Collect all the child thread ids (replies) from the 'children' field of each user thread
+    const childThreadIds = userThreads.reduce((acc, userThread) => {
+      return acc.concat(userThread.children);
     }, []);
 
-    // Find and return the child Univplats (replies) excluding the ones created by the same user
-    const replies = await Univplat.find({
-      _id: { $in: childUnivplatIds },
-      author: { $ne: userId }, // Exclude Univplats authored by the same user
+    // Find and return the child threads (replies) excluding the ones created by the same user
+    const replies = await Thread.find({
+      _id: { $in: childThreadIds },
+      author: { $ne: userId }, // Exclude threads authored by the same user
     }).populate({
       path: "author",
       model: User,

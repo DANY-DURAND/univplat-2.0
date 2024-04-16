@@ -1,7 +1,12 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "../globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import type { Metadata } from "next";
+
+import { Inter } from "next/font/google";
+
+import { Toaster } from "react-hot-toast";
+
+import "@/app/globals.css";
+
 import Topbar from "@/components/shared/Topbar";
 import LeftSidebar from "@/components/shared/LeftSidebar";
 import RightSidebar from "@/components/shared/RightSideBar";
@@ -24,7 +29,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <Topbar />
-          <main>
+          <main className="flex flex-row">
             <LeftSidebar />
 
             <section className="main-container">
@@ -33,6 +38,15 @@ export default function RootLayout({
 
             <RightSidebar />
           </main>
+          <Toaster
+            toastOptions={{
+              style: {
+                borderRadius: "10px",
+                background: "#333",
+                color: "#fff",
+              },
+            }}
+          />
           <Bottombar />
         </body>
       </html>
