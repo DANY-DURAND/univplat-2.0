@@ -1,12 +1,13 @@
 "use server";
 
-import { FilterQuery, SortOrder } from "mongoose";
+import { FilterQuery, SortOrder, model } from "mongoose";
 
 import Community from "../models/community.model";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
 
 import { connectToDB } from "../mongoose";
+import path from "path";
 
 export async function createCommunity(
   id: string,
@@ -91,6 +92,10 @@ export async function fetchCommunityPosts(id: string) {
             model: User,
             select: "image _id", // Select the "name" and "_id" fields from the "User" model
           },
+        },
+        {
+          path: "threads",
+          model: Thread,
         },
       ],
     });
